@@ -9,9 +9,8 @@ TARGET_GRAFANA_AUTH_KEY = environ.get('TARGET_GRAFANA_AUTH_KEY')
 SOURCE_GRAFANA_URL = environ.get('SOURCE_GRAFANA_URL')
 TARGET_GRAFANA_URL = environ.get('TARGET_GRAFANA_URL')
 
-logging.basicConfig()
+logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
 
 def get_source_notification_channels() -> List :
   
@@ -59,17 +58,20 @@ def put_notification_channels(notification_channels: Dict):
   to_be_deleted_nc_uids = set(existing_notification_channels.keys()) - set(notification_channels.keys())
   #creating new notification channels
   for nc_uid in new_nc_uids:
+    logging.info(f"creating new nc with UID: {nc_uid}")
     res = s.post(url, json=notification_channels[nc_uid])
     res.raise_for_status()
 
   # update exsiting (if needed) ingnore those that need to be deleted
   for nc_uid in set(existing_notification_channels.keys()) - to_be_deleted_nc_uids:
     if existing_notification_channels[nc_uid] != notification_channels[nc_uid]:
+      logging.info(f"updating exsiting nc with UID: {nc_uid}")
       res = s.put(f"{url}/uid/{nc_uid}", json=notification_channels[nc_uid])
       res.raise_for_status()
 
   #delete notification channels that no longer exsit in old
   for nc_uid in to_be_deleted_nc_uids:
+    logging.info(f"deleting nc with UID: {nc_uid}")
     res = s.delete(f"{url}/uid/{nc_uid}")
     res.raise_for_status()
 
