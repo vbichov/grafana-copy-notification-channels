@@ -56,6 +56,14 @@ def put_notification_channels(notification_channels: Dict):
   logging.info("updating existing notification channels")
   new_nc_uids = set(notification_channels.keys()) - set(existing_notification_channels.keys())
   to_be_deleted_nc_uids = set(existing_notification_channels.keys()) - set(notification_channels.keys())
+
+  #delete notification channels that no longer exsit in old
+  for nc_uid in to_be_deleted_nc_uids:
+    logging.info(f"deleting nc with UID: {nc_uid}")
+    res = s.delete(f"{url}/uid/{nc_uid}")
+    res.raise_for_status()
+
+
   #creating new notification channels
   for nc_uid in new_nc_uids:
     logging.info(f"creating new nc with UID: {nc_uid}")
@@ -68,12 +76,6 @@ def put_notification_channels(notification_channels: Dict):
       logging.info(f"updating exsiting nc with UID: {nc_uid}")
       res = s.put(f"{url}/uid/{nc_uid}", json=notification_channels[nc_uid])
       res.raise_for_status()
-
-  #delete notification channels that no longer exsit in old
-  for nc_uid in to_be_deleted_nc_uids:
-    logging.info(f"deleting nc with UID: {nc_uid}")
-    res = s.delete(f"{url}/uid/{nc_uid}")
-    res.raise_for_status()
 
 def run():
   put_notification_channels(get_source_notification_channels())
