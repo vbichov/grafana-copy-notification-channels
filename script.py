@@ -81,6 +81,7 @@ def run():
   put_notification_channels(get_source_notification_channels())
 
 if __name__ == "__main__":
+  return 0
   if SOURCE_GRAFANA_AHTH_KEY == None:
     print("Source grafana auth key env var not set")
     exit(1)
